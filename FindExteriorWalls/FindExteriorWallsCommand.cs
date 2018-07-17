@@ -176,7 +176,7 @@ namespace FindExteriorWalls
             return intersectedWalls;
         }
 
-        private List<Wall> GetWallsIntersectedWithCurveByEnd(List<Wall> exteriorWalls, Wall currentWall, int endIndex)
+        private static List<Wall> GetWallsIntersectedWithCurveByEnd(List<Wall> exteriorWalls, Wall currentWall, int endIndex)
         {
             List<Wall> intersectedWalls = new List<Wall>();
             var currentCurve = ((LocationCurve)currentWall.Location).Curve;
@@ -188,7 +188,7 @@ namespace FindExteriorWalls
                 if (currentCurve is Line line1 && exteriorWallCurve is Line line2 &&
                     Math.Abs(Math.Abs(line1.Direction.DotProduct(line2.Direction))) < 0.0001)
                     continue;
-                if (currentCurve.Intersect(exteriorWallCurve, out var intersectionResultArray) == SetComparisonResult.Overlap &&
+                if (currentCurve.IntersectToByMovingZ(exteriorWallCurve, out var intersectionResultArray) &&
                     intersectionResultArray.Size == 1)
                 {
                     if (Math.Abs(intersectionResultArray.get_Item(0).XYZPoint.DistanceTo(currentCurve.GetEndPoint(endIndex))) < 0.0001)

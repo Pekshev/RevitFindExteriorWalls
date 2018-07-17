@@ -6,22 +6,6 @@ namespace FindExteriorWalls
 {
     public static class Extensions
     {
-        /// <summary>Get perpendicular to wall's location curve</summary>
-        /// <param name="wall">Wall</param>
-        /// <param name="leftRight">0 - left, 1 - right</param>
-        /// <returns>Long line</returns>
-        public static Line GetPerpendicularLine(this Wall wall, int leftRight)
-        {
-            var wallCurve = ((LocationCurve)wall.Location).Curve;
-            XYZ orientation = wall.Orientation;
-            if (wallCurve is Arc arc)
-                orientation = ((arc.GetEndPoint(0) + arc.GetEndPoint(1)) / 2 - arc.GetCenterPoint()).Normalize();
-            return Line.CreateBound(wallCurve.GetCenterPoint(),
-                leftRight == 0
-                    ? wallCurve.GetCenterPoint() - orientation * 1000
-                    : wallCurve.GetCenterPoint() + orientation * 1000);
-        }
-
         public static Line GetPerpendicularLine(this Curve curve, Wall wall, int leftRight)
         {
             XYZ orientation = wall.Orientation;
@@ -53,6 +37,16 @@ namespace FindExteriorWalls
             checkedCurve = GetCurveWithChangedZ(checkedCurve, z);
             if (checkedCurve == null) return false; // can't be...
             return line.Intersect(checkedCurve) == SetComparisonResult.Overlap;
+        }
+
+        public static bool IntersectToByMovingZ(this Curve curve, Curve checkedCurve, out IntersectionResultArray intersectionResultArray)
+        {
+            intersectionResultArray = new IntersectionResultArray();
+            // walls is always vertical - it's very good =)
+            var z = curve.GetCenterPoint().Z;
+            checkedCurve = GetCurveWithChangedZ(checkedCurve, z);
+            if (checkedCurve == null) return false; // can't be...
+            return curve.Intersect(checkedCurve, out intersectionResultArray) == SetComparisonResult.Overlap;
         }
 
         private static Curve GetCurveWithChangedZ(Curve curve, double z)
